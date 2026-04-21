@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS3 Responsive Page</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f4f4f4;
+        }
+
+        header {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            animation: fadeIn 2s ease-in;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #333;
+        }
+
+        nav a {
+            color: white;
+            padding: 14px 20px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            background: #4facfe;
+            transform: scale(1.1);
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .main {
+            flex: 3;
+            padding: 20px;
+        }
+
+        .sidebar {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        /* Multi-column text */
+        .columns {
+            column-count: 3;
+            column-gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            transition: transform 0.4s;
+        }
+
+        .card:hover {
+            transform: rotate(2deg) scale(1.03);
+        }
+
+        .icon {
+            font-size: 30px;
+            color: #4facfe;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: #333;
+            color: white;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .columns {
+                column-count: 1;
+            }
+
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>My Responsive CSS3 Page</h1>
+    <p>Using Animations, Columns, Icons & More</p>
+</header>
+
+<nav>
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Services</a>
+    <a href="#">Contact</a>
+</nav>
+
+<div class="container">
+
+    <div class="main">
+
+        <div class="card">
+            <i class="fas fa-laptop-code icon"></i>
+            <h2>Web Development</h2>
+            <p class="columns">
+                Web development is the process of creating, building, and maintaining websites and web applications
+                for the internet or intranet. It involves coding (HTML, CSS, JavaScript) to ensure functionality 
+                and user interaction, ranging from simple static pages to complex, dynamic web applications, 
+                often categorized into front-end (client-side) and back-end (server-side) development. 
+
+            </p>
+        </div>
+
+        <div class="card">
+            <i class="fas fa-mobile-alt icon"></i>
+            <h2>Responsive Design</h2>
+            <p class="columns">
+                Responsive design is a web development approach that ensures websites automatically adapt,
+                resize, and rearrange content to provide optimal viewing and interaction across various devices, 
+                from desktop monitors to mobile phones. It uses fluid grids, flexible images, and CSS3 media queries 
+                to create a single, consistent, user-friendly experience rather than separate sites. 
+
+            </p>
+        </div>
+
+    </div>
+
+    <aside class="sidebar">
+        <h3><i class="fas fa-info-circle"></i> Info</h3>
+        <p>This sidebar includes icons and clean styling.</p>
+    </aside>
+
+</div>
+
+<footer>
+    <p>© 2026 My Website</p>
+</footer>
+
+</body>
+</html>
