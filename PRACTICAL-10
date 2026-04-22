@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webpage with Top Menu</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Top Navigation Bar */
+        .navbar {
+            background-color: #333;
+            display: flex;
+        }
+
+        .navbar a {
+            color: white;
+            padding: 14px 20px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .navbar a:hover {
+            background-color: #575757;
+        }
+
+        /* Layout */
+        .container {
+            height: calc(100vh - 50px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top {
+            height: 50%;
+        }
+
+        .bottom {
+            height: 50%;
+            display: flex;
+        }
+
+        .left, .right {
+            width: 50%;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Top Menu -->
+<div class="navbar">
+    <a onclick="loadMap()">Map</a>
+    <a onclick="loadVideo()">YouTube Video</a>
+    <a onclick="loadHTML()">HTML Info</a>
+</div>
+
+<!-- Content -->
+<div class="container">
+    
+    <!-- Map (Top Full Width) -->
+    <div class="top">
+        <iframe id="mapFrame"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d19292.990036817286!2d78.97345887182077!3d21.22263959345576!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bd4e97f454d37d5%3A0x32dca0144110c4a8!2sS.%20B.%20Jain%20Institute%20of%20Technology%2C%20Management%20%26%20Research%2C%20Nagpur!5e0!3m2!1sen!2sin!4v1776853332205!5m2!1sen!2sin">
+        </iframe>
+    </div>
+
+    <!-- Bottom Split -->
+    <div class="bottom">
+        
+        <!-- YouTube Video -->
+        <div class="left">
+            <iframe id="videoFrame"
+                src="https://www.youtube.com/embed/k2DSi1zGEc8"
+                title="HTML Full Course (in Hindi)"
+                allowfullscreen>
+            </iframe>
+        </div>
+
+        <!-- HTML Info Page -->
+        <div class="right">
+            <iframe id="htmlFrame"
+                srcdoc="
+                <html>
+                <body style='font-family: Arial; padding:10px;'>
+                    <h2>HTML Information</h2>
+                    <p><b>HTML</b> (HyperText Markup Language) is the standard language used to create web pages.</p>
+                    <ul>
+                        <li>Defines structure of a webpage</li>
+                        <li>Uses tags like &lt;html&gt;, &lt;head&gt;, &lt;body&gt;</li>
+                        <li>Works with CSS and JavaScript</li>
+                    </ul>
+                </body>
+                </html>
+                ">
+            </iframe>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function loadMap() {
+    document.getElementById("mapFrame").src =
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d19292.990036817286!2d78.97345887182077!3d21.22263959345576!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bd4e97f454d37d5%3A0x32dca0144110c4a8!2sS.%20B.%20Jain%20Institute%20of%20Technology%2C%20Management%20%26%20Research%2C%20Nagpur!5e0!3m2!1sen!2sin!4v1776853332205!5m2!1sen!2sin";
+}
+
+function loadVideo() {
+    document.getElementById("videoFrame").src =
+    "https://www.youtube.com/embed/k2DSi1zGEc8";
+}
+
+function loadHTML() {
+    document.getElementById("htmlFrame").srcdoc = `
+        <html>
+        <body style='font-family: Arial; padding:10px;'>
+            <h2>HTML Information</h2>
+            <p><b>HTML</b> (HyperText Markup Language) is the standard language used to create web pages.</p>
+            <ul>
+                <li>Defines structure of a webpage</li>
+                <li>Uses tags like &lt;html&gt;, &lt;head&gt;, &lt;body&gt;</li>
+                <li>Works with CSS and JavaScript</li>
+            </ul>
+        </body>
+        </html>`;
+}
+</script>
+
+</body>
+</html>
