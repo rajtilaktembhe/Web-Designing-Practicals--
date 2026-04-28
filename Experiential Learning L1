@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Level 1 – Currency Converter</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<style>
+:root{--blk:#0a0a0a;--cream:#f5f2eb;--gold:#e8c547;--mid:#1e1e1e;}
+*{box-sizing:border-box;}
+body{background:var(--cream);font-family:'Space Mono',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;}
+.wrap{background:var(--blk);color:#fff;max-width:560px;width:100%;box-shadow:10px 10px 0 var(--gold);}
+.hdr{background:var(--gold);color:var(--blk);padding:1.2rem 2rem;}
+.badge-lv{background:var(--blk);color:var(--gold);font-size:.6rem;padding:3px 10px;letter-spacing:2px;border:1px solid var(--gold);display:inline-block;margin-bottom:.5rem;}
+.hdr h1{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;letter-spacing:4px;line-height:1;}
+.body{padding:2rem;}
+label{font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:#888;display:block;margin-bottom:6px;}
+select,input[type=number]{width:100%;background:var(--mid);color:#fff;border:2px solid #333;padding:.75rem 1rem;font-family:'Space Mono',monospace;font-size:.95rem;appearance:none;outline:none;transition:border-color .2s;border-radius:0;}
+select:focus,input:focus{border-color:var(--gold);}
+.swap{background:none;border:2px solid #444;color:var(--gold);font-size:1.3rem;width:44px;height:44px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.swap:hover{background:var(--gold);color:var(--blk);border-color:var(--gold);}
+.cvt-btn{width:100%;background:var(--gold);color:var(--blk);border:none;padding:1rem;font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:5px;cursor:pointer;transition:background .2s;margin-top:1.5rem;}
+.cvt-btn:hover{background:#fff;}
+.result{margin-top:1.5rem;border:2px solid #333;padding:1.5rem;text-align:center;display:none;}
+.result.show{display:block;}
+.result-lbl{font-size:.6rem;letter-spacing:3px;color:#777;text-transform:uppercase;}
+.result-val{font-family:'Bebas Neue',sans-serif;font-size:3.4rem;color:var(--gold);line-height:1.1;}
+.result-rate{font-size:.7rem;color:#666;margin-top:6px;}
+.divider{border-color:#333;margin:1.5rem 0;}
+.note{text-align:center;font-size:.55rem;color:#444;letter-spacing:2px;margin-top:1rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <span class="badge-lv">LEVEL 01 · 04 MARKS</span>
+    <h1>CURRENCY<br>CONVERTER</h1>
+  </div>
+  <div class="body">
+    <div class="mb-3">
+      <label>Amount</label>
+      <input type="number" id="amount" value="1" min="0" placeholder="0.00"/>
+    </div>
+    <div class="row align-items-end g-2 mb-3">
+      <div class="col"><label>From</label><select id="from"></select></div>
+      <div class="col-auto"><button class="swap" onclick="swp()" title="Swap">⇆</button></div>
+      <div class="col"><label>To</label><select id="to"></select></div>
+    </div>
+    <hr class="divider"/>
+    <button class="cvt-btn" onclick="cvt()">CONVERT →</button>
+    <div class="result" id="res">
+      <div class="result-lbl">Converted Amount</div>
+      <div class="result-val" id="rVal">—</div>
+      <div class="result-rate" id="rRate"></div>
+    </div>
+    <div class="note">RATES APPROXIMATED · EDUCATIONAL USE ONLY</div>
+  </div>
+</div>
+<script>
+const R={USD:1,EUR:0.92,GBP:0.79,INR:83.5,JPY:149.8,AUD:1.53,CAD:1.36,CHF:0.89,CNY:7.24,AED:3.67,SGD:1.34,MYR:4.71,KRW:1330,BRL:4.97,MXN:17.2,ZAR:18.6,SEK:10.5,NOK:10.7,NZD:1.64,HKD:7.82,THB:35.1,PKR:278,TRY:32.1};
+const FL={USD:'🇺🇸',EUR:'🇪🇺',GBP:'🇬🇧',INR:'🇮🇳',JPY:'🇯🇵',AUD:'🇦🇺',CAD:'🇨🇦',CHF:'🇨🇭',CNY:'🇨🇳',AED:'🇦🇪',SGD:'🇸🇬',MYR:'🇲🇾',KRW:'🇰🇷',BRL:'🇧🇷',MXN:'🇲🇽',ZAR:'🇿🇦',SEK:'🇸🇪',NOK:'🇳🇴',NZD:'🇳🇿',HKD:'🇭🇰',THB:'🇹🇭',PKR:'🇵🇰',TRY:'🇹🇷'};
+function init(){['from','to'].forEach((id,i)=>{const s=document.getElementById(id);Object.keys(R).forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=`${FL[c]||''} ${c}`;s.appendChild(o);});if(i===1)s.value='EUR';});}
+function swp(){const f=document.getElementById('from'),t=document.getElementById('to');[f.value,t.value]=[t.value,f.value];}
+function cvt(){
+  const a=parseFloat(document.getElementById('amount').value)||0,f=document.getElementById('from').value,t=document.getElementById('to').value;
+  const res=(a/R[f])*R[t],rate=(R[t]/R[f]).toFixed(6);
+  document.getElementById('rVal').textContent=`${res.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})} ${t}`;
+  document.getElementById('rRate').textContent=`1 ${f} = ${rate} ${t}`;
+  document.getElementById('res').classList.add('show');
+}
+init();
+</script>
+</body>
+</html>
