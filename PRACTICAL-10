@@ -76,13 +76,21 @@
     <div class="bottom">
         
         <!-- YouTube Video -->
-        <div class="left">
-            <iframe id="videoFrame"
-                src="https://www.youtube.com/embed/k2DSi1zGEc8"
-                title="HTML Full Course (in Hindi)"
-                allowfullscreen>
-            </iframe>
-        </div>
+        <!-- YouTube Video -->
+      <!-- YouTube Video -->
+<div class="left">
+    <iframe id="videoFrame"
+        width="1188" height="668"
+        src="https://www.youtube.com/embed/k2DSi1zGEc8"
+        title="HTML Full Course (in Hindi)"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen>
+    </iframe>
+</div>
+
+
 
         <!-- HTML Info Page -->
         <div class="right">
@@ -116,7 +124,15 @@ function loadMap() {
 function loadVideo() {
     document.getElementById("videoFrame").src =
     "https://www.youtube.com/embed/k2DSi1zGEc8";
+    document.getElementById("videoFrame").setAttribute("width", "1188");
+    document.getElementById("videoFrame").setAttribute("height", "668");
+    document.getElementById("videoFrame").setAttribute("title", "HTML Full Course (in Hindi)");
+    document.getElementById("videoFrame").setAttribute("frameborder", "0");
+    document.getElementById("videoFrame").setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+    document.getElementById("videoFrame").setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+    document.getElementById("videoFrame").setAttribute("allowfullscreen", "");
 }
+
 
 function loadHTML() {
     document.getElementById("htmlFrame").srcdoc = `
