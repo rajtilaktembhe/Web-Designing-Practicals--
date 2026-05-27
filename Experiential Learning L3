@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Level 3 – FxNova Dashboard (Live)</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#03050f;--s1:rgba(255,255,255,.03);--s2:rgba(255,255,255,.06);
+  --br:rgba(255,255,255,.07);--lime:#c6ff00;--cyan:#00e5ff;--purple:#a855f7;
+  --rose:#ff4f8b;--txt:#dde4f0;--muted:#596580;
+  --grad:linear-gradient(135deg,var(--lime),var(--cyan));
+  --green:#4ade80;--gold:#fbbf24;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 70% 50% at 5% 5%,rgba(198,255,0,.08),transparent),
+  radial-gradient(ellipse 60% 40% at 95% 10%,rgba(0,229,255,.07),transparent),
+  radial-gradient(ellipse 50% 60% at 50% 95%,rgba(168,85,247,.07),transparent);
+  pointer-events:none;z-index:0;}
+
+/* ── TICKER ── */
+.ticker-wrap{
+  position:relative;z-index:10;
+  background:rgba(198,255,0,.07);
+  border-bottom:1px solid rgba(198,255,0,.2);
+  overflow:hidden;height:36px;display:flex;align-items:center;
+}
+.ticker-inner{display:flex;gap:0;white-space:nowrap;animation:ticker 40s linear infinite;}
+.ticker-item{padding:0 2rem;font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--lime);letter-spacing:1px;}
+.ticker-item .t-val{color:#fff;margin-left:.35rem;}
+.ticker-item .t-chg{margin-left:.35rem;font-size:.6rem;}
+.ticker-item .pos{color:var(--green);}
+.ticker-item .neg{color:var(--rose);}
+@keyframes ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:relative;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 2rem;border-bottom:1px solid var(--br);
+  flex-wrap:wrap;gap:.5rem;
+}
+.brand{font-size:1.5rem;font-weight:800;letter-spacing:-1px;}
+.brand em{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-style:normal;}
+.level-badge{background:var(--grad);color:#000;font-size:.6rem;font-weight:700;padding:5px 16px;border-radius:20px;letter-spacing:2px;}
+
+/* clock area */
+.topbar-center{display:flex;flex-direction:column;align-items:center;gap:.15rem;}
+.clock-main{font-family:'IBM Plex Mono',monospace;font-size:1.15rem;font-weight:600;color:var(--lime);}
+.clock-sub{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:1px;}
+
+/* live pill */
+.live-pill{
+  display:flex;align-items:center;gap:.4rem;
+  background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);
+  border-radius:20px;padding:3px 10px;font-size:.6rem;color:var(--green);font-weight:700;
+}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 1.4s ease infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+/* ── RATE BANNER ── */
+.rate-banner{
+  position:relative;z-index:9;
+  background:rgba(198,255,0,.04);
+  border-bottom:1px solid rgba(198,255,0,.1);
+  padding:.5rem 2rem;
+  display:flex;align-items:center;gap:2rem;
+  overflow-x:auto;flex-wrap:nowrap;
+}
+.rate-banner::-webkit-scrollbar{height:2px;}
+.rate-banner::-webkit-scrollbar-thumb{background:rgba(198,255,0,.2);}
+.rb-item{display:flex;align-items:center;gap:.5rem;flex-shrink:0;}
+.rb-pair{font-size:.62rem;letter-spacing:1px;color:var(--muted);}
+.rb-val{font-family:'IBM Plex Mono',monospace;font-size:.8rem;color:#fff;font-weight:600;}
+.rb-chg{font-size:.6rem;padding:1px 6px;border-radius:4px;}
+.rb-chg.pos{color:var(--green);background:rgba(74,222,128,.1);}
+.rb-chg.neg{color:var(--rose);background:rgba(255,79,139,.1);}
+.rb-sep{width:1px;height:20px;background:var(--br);flex-shrink:0;}
+
+/* ── LAYOUT ── */
+.main-grid{
+  position:relative;z-index:5;
+  display:grid;grid-template-columns:1fr 390px;
+  gap:1.5rem;padding:1.5rem 2rem;
+  max-width:1400px;margin:0 auto;
+}
+@media(max-width:900px){.main-grid{grid-template-columns:1fr;}}
+
+/* ── PANELS ── */
+.panel{background:var(--s1);border:1px solid var(--br);border-radius:20px;overflow:hidden;}
+.panel-header{padding:1.1rem 1.5rem;border-bottom:1px solid var(--br);display:flex;justify-content:space-between;align-items:center;}
+.panel-title{font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
+.pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulse 1.5s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(198,255,0,.5);}50%{opacity:.7;box-shadow:0 0 0 8px rgba(198,255,0,0);}}
+.panel-body{padding:1.5rem;}
+
+/* ── AMOUNT ── */
+.amount-hero{text-align:center;margin-bottom:1.75rem;}
+.amount-hero-label{font-size:.63rem;letter-spacing:2px;color:var(--muted);margin-bottom:.5rem;}
+.amount-hero input{
+  background:transparent;border:none;
+  border-bottom:2px solid rgba(198,255,0,.25);
+  width:100%;font-family:'IBM Plex Mono',monospace;
+  font-size:3.2rem;font-weight:600;color:#fff;
+  text-align:center;outline:none;padding:.5rem;transition:border-color .3s;
+}
+.amount-hero input:focus{border-bottom-color:var(--lime);}
+
+/* ── CCY CARDS ── */
+.ccy-grid{display:grid;grid-template-columns:1fr 44px 1fr;gap:.75rem;align-items:center;margin-bottom:1.5rem;}
+.ccy-card{
+  background:var(--s2);border:1px solid var(--br);
+  border-radius:14px;padding:1rem;position:relative;cursor:pointer;transition:all .25s;
+}
+.ccy-card:hover{border-color:rgba(198,255,0,.35);background:rgba(198,255,0,.05);}
+.ccy-card-label{font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem;}
+.ccy-flag{font-size:2rem;line-height:1;}
+.ccy-code{font-size:1.2rem;font-weight:700;margin-top:.2rem;}
+.ccy-name{font-size:.62rem;color:var(--muted);}
+.ccy-live-rate{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--lime);margin-top:.3rem;}
+.hidden-sel{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border-radius:14px;}
+.swap-circle{
+  width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--br);background:var(--s2);
+  color:var(--lime);font-size:1.1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .35s;flex-shrink:0;
+}
+.swap-circle:hover{background:var(--lime);color:#000;border-color:var(--lime);transform:rotate(180deg);}
+
+/* ── CVT BTN ── */
+.cvt-btn{
+  width:100%;padding:1rem;border:none;border-radius:14px;
+  background:var(--grad);color:#000;font-family:'Syne',sans-serif;
+  font-weight:800;font-size:1rem;letter-spacing:3px;text-transform:uppercase;
+  cursor:pointer;transition:opacity .2s;
+  position:relative;overflow:hidden;margin-bottom:1.25rem;
+}
+.cvt-btn:hover{opacity:.9;}
+.cvt-btn .shine{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);transform:translateX(-100%);transition:transform .6s;}
+.cvt-btn:hover .shine{transform:translateX(100%);}
+
+/* ── RESULT ── */
+.result-hero{
+  background:rgba(198,255,0,.05);border:1px solid rgba(198,255,0,.15);
+  border-radius:16px;padding:1.5rem;text-align:center;display:none;
+}
+.result-hero.show{display:block;animation:fadeUp .4s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.res-from-line{font-size:.85rem;color:var(--muted);margin-bottom:.35rem;}
+.res-main{
+  font-family:'IBM Plex Mono',monospace;font-size:2.6rem;font-weight:600;
+  background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;
+}
+.res-sub{font-size:.7rem;color:var(--muted);margin-top:.5rem;}
+.res-timestamp{font-size:.6rem;color:rgba(74,222,128,.75);margin-top:.3rem;letter-spacing:.5px;}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem;}
+.res-stat{background:var(--s2);border:1px solid var(--br);border-radius:10px;padding:.7rem;text-align:center;}
+.res-stat-lbl{font-size:.58rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.res-stat-val{font-family:'IBM Plex Mono',monospace;font-size:.88rem;color:var(--cyan);font-weight:600;margin-top:.2rem;}
+
+/* ── QUICK AMOUNTS ── */
+.qa-label{font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;margin-top:1.2rem;}
+.qa-pills{display:flex;gap:.5rem;flex-wrap:wrap;}
+.qa-pill{background:var(--s2);border:1px solid var(--br);border-radius:8px;padding:.35rem .9rem;font-size:.76rem;cursor:pointer;transition:all .2s;color:var(--txt);}
+.qa-pill:hover{background:rgba(198,255,0,.1);border-color:rgba(198,255,0,.4);color:var(--lime);}
+
+/* ── RIGHT: CHART ── */
+.chart-container{height:200px;position:relative;margin:1rem 0 .5rem;}
+.chart-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;gap:.3rem;}
+.chart-pair{font-size:.8rem;font-weight:700;}
+.chart-value{font-family:'IBM Plex Mono',monospace;font-size:1.1rem;color:var(--lime);}
+.chart-meta{display:flex;align-items:center;gap:.5rem;}
+.chart-chg{font-size:.68rem;padding:2px 8px;border-radius:6px;}
+.chart-chg.pos{color:var(--green);background:rgba(74,222,128,.1);}
+.chart-chg.neg{color:var(--rose);background:rgba(255,79,139,.1);}
+
+/* ── MARKET OVERVIEW ── */
+.market-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;}
+.mkt-card{background:var(--s2);border:1px solid var(--br);border-radius:12px;padding:.85rem;cursor:pointer;transition:all .2s;}
+.mkt-card:hover{border-color:rgba(198,255,0,.25);background:rgba(198,255,0,.03);}
+.mkt-pair{font-size:.62rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.mkt-rate{font-family:'IBM Plex Mono',monospace;font-size:.95rem;font-weight:600;color:#fff;margin-top:.2rem;}
+.mkt-change{font-size:.62rem;margin-top:.15rem;}
+.pos{color:var(--green);} .neg{color:var(--rose);}
+
+/* ── HISTORY ── */
+.hist-list{display:flex;flex-direction:column;gap:.5rem;max-height:220px;overflow-y:auto;}
+.hist-list::-webkit-scrollbar{width:3px;}
+.hist-list::-webkit-scrollbar-thumb{background:var(--br);}
+.hist-item{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--s2);border:1px solid var(--br);
+  border-radius:10px;padding:.7rem 1rem;font-size:.76rem;
+}
+.hist-from{color:var(--muted);}
+.hist-to{font-family:'IBM Plex Mono',monospace;color:var(--lime);font-weight:600;}
+.hist-time{font-size:.58rem;color:var(--muted);}
+
+/* ── SECTION TITLE ── */
+.section-title{
+  font-size:.58rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.85rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.section-title::after{content:'';flex:1;height:1px;background:var(--br);}
+.section-title .live-tag{
+  font-size:.55rem;background:rgba(74,222,128,.1);
+  color:var(--green);border:1px solid rgba(74,222,128,.2);
+  border-radius:10px;padding:1px 7px;letter-spacing:1px;
+}
+
+/* ── FOOTNOTE ── */
+.footnote{
+  text-align:center;font-size:.55rem;color:var(--muted);
+  letter-spacing:1px;padding:1rem 2rem;
+  border-top:1px solid var(--br);position:relative;z-index:5;
+}
+.footnote strong{color:var(--lime);}
+
+/* ── REFRESH COUNTDOWN ── */
+.refresh-bar{height:2px;background:rgba(198,255,0,.1);overflow:hidden;}
+.refresh-fill{height:100%;background:linear-gradient(90deg,var(--lime),var(--cyan));animation:refill 60s linear infinite;}
+@keyframes refill{from{width:100%;}to{width:0%;}}
+</style>
+</head>
+<body>
+
+<!-- LIVE RATES TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner" id="ticker"></div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">Fx<em>Nova</em></div>
+  <div class="topbar-center">
+    <div class="clock-main" id="clockIST">--:--:--</div>
+    <div class="clock-sub" id="clockDateIST">India Standard Time</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+    <div class="live-pill"><div class="live-dot"></div> LIVE RATES</div>
+    <div class="level-badge">LEVEL 03 · 02 MARKS</div>
+  </div>
+</div>
+
+<!-- RATE BANNER (key pairs always visible) -->
+<div class="rate-banner" id="rateBanner"></div>
+
+<!-- MAIN GRID -->
+<div class="main-grid">
+
+  <!-- LEFT: CONVERTER -->
+  <div>
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Currency Converter</span>
+        <div style="display:flex;align-items:center;gap:.5rem;font-size:.63rem;color:var(--muted);">
+          <div class="pulse-dot"></div> Real-Time Rates · May 5 2026
+        </div>
+      </div>
+      <div class="panel-body">
+
+        <!-- Amount -->
+        <div class="amount-hero">
+          <div class="amount-hero-label">Enter Amount</div>
+          <input type="number" id="amount" value="1000" min="0"/>
+        </div>
+
+        <!-- Currencies -->
+        <div class="ccy-grid">
+          <div class="ccy-card">
+            <div class="ccy-card-label">From</div>
+            <div class="ccy-flag" id="fromFlag">🇺🇸</div>
+            <div class="ccy-code" id="fromCode">USD</div>
+            <div class="ccy-name" id="fromName">US Dollar</div>
+            <div class="ccy-live-rate" id="fromRate">Base Currency</div>
+            <select class="hidden-sel" id="from" onchange="updateUI()"></select>
+          </div>
+          <button class="swap-circle" onclick="swp()">⇆</button>
+          <div class="ccy-card">
+            <div class="ccy-card-label">To</div>
+            <div class="ccy-flag" id="toFlag">🇮🇳</div>
+            <div class="ccy-code" id="toCode">INR</div>
+            <div class="ccy-name" id="toName">Indian Rupee</div>
+            <div class="ccy-live-rate" id="toRate">1 USD = 95.2700</div>
+            <select class="hidden-sel" id="to" onchange="updateUI()"></select>
+          </div>
+        </div>
+
+        <!-- Convert -->
+        <button class="cvt-btn" onclick="cvt()">
+          <span class="shine"></span>⚡ Convert Now
+        </button>
+
+        <!-- Result -->
+        <div class="result-hero" id="resHero">
+          <div class="res-from-line" id="resFrom"></div>
+          <div class="res-main" id="resMain">—</div>
+          <div class="res-sub" id="resSub"></div>
+          <div class="res-timestamp" id="resTs"></div>
+          <div class="res-grid">
+            <div class="res-stat">
+              <div class="res-stat-lbl">Rate</div>
+              <div class="res-stat-val" id="statRate">—</div>
+            </div>
+            <div class="res-stat">
+              <div class="res-stat-lbl">Inverse</div>
+              <div class="res-stat-val" id="statInv">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick amounts -->
+        <div class="qa-label">Quick Amounts</div>
+        <div class="qa-pills">
+          <span class="qa-pill" onclick="setA(1)">1</span>
+          <span class="qa-pill" onclick="setA(10)">10</span>
+          <span class="qa-pill" onclick="setA(100)">100</span>
+          <span class="qa-pill" onclick="setA(500)">500</span>
+          <span class="qa-pill" onclick="setA(1000)">1K</span>
+          <span class="qa-pill" onclick="setA(5000)">5K</span>
+          <span class="qa-pill" onclick="setA(10000)">10K</span>
+          <span class="qa-pill" onclick="setA(100000)">100K</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+    <!-- Chart -->
+    <div class="panel">
+      <div class="panel-body">
+        <div class="section-title">Rate Chart <span class="live-tag">LIVE SIM</span></div>
+        <div class="chart-info">
+          <span class="chart-pair" id="chartPair">USD / INR</span>
+          <div class="chart-meta">
+            <span class="chart-value" id="chartVal">95.2700</span>
+            <span class="chart-chg pos" id="chartChg">+0.54%</span>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="rateChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Market Overview -->
+    <div class="panel">
+      <div class="panel-body">
+        <div class="section-title">Market Overview <span class="live-tag">MAY 5 2026</span></div>
+        <div class="market-grid" id="mktGrid"></div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="panel">
+      <div class="panel-body">
+        <div class="section-title">Conversion History</div>
+        <div class="hist-list" id="histList">
+          <div style="font-size:.73rem;color:var(--muted);text-align:center;padding:1rem;">No conversions yet</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- refresh bar -->
+<div class="refresh-bar"><div class="refresh-fill"></div></div>
+
+<div class="footnote">
+  ✦ FXNOVA · LEVEL 3 · EXPERIENTIAL LEARNING ·
+  <strong>REAL-TIME RATES: 1 USD = 95.27 INR</strong> ·
+  Source: X-Rates / Investing.com · May 5, 2026 ✦
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   REAL-TIME RATES — May 5, 2026
+   Sources: X-Rates.com, Investing.com, BookMyForex
+   Base: USD = 1.0
+═══════════════════════════════════════════════════════ */
+const R = {
+  USD: { r: 1,        name: 'US Dollar',          chg: '+0.00' },
+  EUR: { r: 0.8535,   name: 'Euro',               chg: '-0.21' },
+  GBP: { r: 0.7374,   name: 'Brit. Pound',        chg: '+0.14' },
+  INR: { r: 95.27,    name: 'Indian Rupee',        chg: '+0.54' }, // ← Live: May 5, 2026
+  JPY: { r: 157.01,   name: 'Japanese Yen',        chg: '-0.32' },
+  AUD: { r: 1.3911,   name: 'Aus. Dollar',         chg: '+0.18' },
+  CAD: { r: 1.3616,   name: 'Can. Dollar',         chg: '-0.09' },
+  CHF: { r: 0.7827,   name: 'Swiss Franc',         chg: '+0.33' },
+  CNY: { r: 6.8302,   name: 'Chinese Yuan',        chg: '+0.07' },
+  AED: { r: 3.6725,   name: 'UAE Dirham',          chg: '+0.00' },
+  SGD: { r: 1.2750,   name: 'S\'pore Dollar',      chg: '+0.22' },
+  KRW: { r: 1359.5,   name: 'Korean Won',          chg: '-0.16' },
+  BRL: { r: 4.9515,   name: 'Brazilian Real',      chg: '+0.28' },
+  MXN: { r: 19.32,    name: 'Mexican Peso',        chg: '-0.45' },
+  HKD: { r: 7.8330,   name: 'HK Dollar',           chg: '-0.02' },
+  NZD: { r: 1.5890,   name: 'NZ Dollar',           chg: '+0.11' },
+  THB: { r: 32.85,    name: 'Thai Baht',           chg: '-0.08' },
+  ZAR: { r: 18.03,    name: 'S. African Rand',     chg: '+0.63' },
+  NOK: { r: 10.22,    name: 'Norwegian Krone',     chg: '+0.19' },
+  SEK: { r: 9.68,     name: 'Swedish Krona',       chg: '+0.05' },
+};
+
+const FL = {
+  USD:'🇺🇸',EUR:'🇪🇺',GBP:'🇬🇧',INR:'🇮🇳',JPY:'🇯🇵',
+  AUD:'🇦🇺',CAD:'🇨🇦',CHF:'🇨🇭',CNY:'🇨🇳',AED:'🇦🇪',
+  SGD:'🇸🇬',KRW:'🇰🇷',BRL:'🇧🇷',MXN:'🇲🇽',HKD:'🇭🇰',
+  NZD:'🇳🇿',THB:'🇹🇭',ZAR:'🇿🇦',NOK:'🇳🇴',SEK:'🇸🇪',
+};
+
+// Market pairs shown in overview + ticker
+const MKT = [
+  ['USD','INR'],['EUR','USD'],['GBP','USD'],['USD','JPY'],
+  ['AUD','USD'],['USD','CAD'],['USD','CHF'],['EUR','GBP'],
+];
+
+// Ticker pairs (expanded set)
+const TICKER_PAIRS = [
+  ['USD','INR'],['EUR','USD'],['GBP','USD'],['USD','JPY'],
+  ['AUD','USD'],['USD','CAD'],['USD','CHF'],['USD','CNY'],
+  ['EUR','JPY'],['EUR','GBP'],['USD','SGD'],['USD','KRW'],
+];
+
+let history_log = [];
+let chartInst   = null;
+let chartData   = [];
+
+/* ── Init ── */
+function init() {
+  ['from','to'].forEach((id, i) => {
+    const s = document.getElementById(id);
+    Object.keys(R).forEach(c => {
+      const o = document.createElement('option');
+      o.value = c;
+      o.textContent = `${FL[c]} ${c} – ${R[c].name}`;
+      s.appendChild(o);
+    });
+    if (i === 1) s.value = 'INR';
+  });
+
+  updateUI();
+  buildTicker();
+  buildMarket();
+  buildRateBanner();
+  buildChart();
+  startClock();
+  setInterval(jitterChart, 3000);
+}
+
+/* ── UI update ── */
+function updateUI() {
+  ['from','to'].forEach(id => {
+    const v = document.getElementById(id).value;
+    document.getElementById(id + 'Flag').textContent = FL[v] || '🌐';
+    document.getElementById(id + 'Code').textContent = v;
+    document.getElementById(id + 'Name').textContent = R[v]?.name || '';
+  });
+
+  const f = document.getElementById('from').value;
+  const t = document.getElementById('to').value;
+  const rate = (R[t].r / R[f].r);
+  const inv  = (R[f].r / R[t].r);
+
+  document.getElementById('fromRate').textContent =
+    f === 'USD' ? 'Base Currency' : `1 USD = ${R[f].r.toFixed(4)}`;
+  document.getElementById('toRate').textContent =
+    `1 ${f} = ${rate.toFixed(4)} ${t}`;
+
+  document.getElementById('chartPair').textContent = `${f} / ${t}`;
+  document.getElementById('chartVal').textContent  = rate.toFixed(4);
+
+  const chgRaw = R[t].chg;
+  const pos    = !chgRaw.startsWith('-');
+  const chgEl  = document.getElementById('chartChg');
+  chgEl.textContent = (pos ? '▲ ' : '▼ ') + chgRaw + '%';
+  chgEl.className   = 'chart-chg ' + (pos ? 'pos' : 'neg');
+
+  regenerateChartData(rate);
+}
+
+function swp() {
+  const f = document.getElementById('from');
+  const t = document.getElementById('to');
+  [f.value, t.value] = [t.value, f.value];
+  updateUI();
+}
+
+function setA(n) { document.getElementById('amount').value = n; }
+
+/* ── Convert ── */
+function cvt() {
+  const a   = parseFloat(document.getElementById('amount').value) || 0;
+  const f   = document.getElementById('from').value;
+  const t   = document.getElementById('to').value;
+  const res = (a / R[f].r) * R[t].r;
+  const rate = (R[t].r / R[f].r);
+  const inv  = (R[f].r / R[t].r);
+
+  // IST timestamp
+  const now = new Date();
+  const ist = new Date(now.getTime() + (5.5 * 60 * 60 * 1000) - (now.getTimezoneOffset() * 60000));
+  const ts  = ist.toLocaleTimeString('en-IN', { hour12: false }) + ' IST';
+
+  document.getElementById('resFrom').textContent = `${a.toLocaleString()} ${f} equals`;
+  document.getElementById('resMain').textContent =
+    `${res.toLocaleString('en-US',{ minimumFractionDigits:2, maximumFractionDigits:2 })} ${t}`;
+  document.getElementById('resSub').textContent  =
+    `1 ${f} = ${rate.toFixed(6)} ${t}`;
+  document.getElementById('resTs').textContent   = `⟳ Converted at ${ts} · Live Rate`;
+  document.getElementById('statRate').textContent = rate.toFixed(6);
+  document.getElementById('statInv').textContent  = inv.toFixed(6);
+
+  const h = document.getElementById('resHero');
+  h.classList.remove('show'); void h.offsetWidth; h.classList.add('show');
+  addHistory(a, f, res, t, ts);
+}
+
+/* ── History ── */
+function addHistory(a, f, res, t, ts) {
+  history_log.unshift({
+    from: `${a.toLocaleString()} ${f}`,
+    to:   `${res.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})} ${t}`,
+    time: ts,
+  });
+  if (history_log.length > 8) history_log.pop();
+  renderHistory();
+}
+function renderHistory() {
+  const el = document.getElementById('histList');
+  if (!history_log.length) {
+    el.innerHTML = '<div style="font-size:.73rem;color:var(--muted);text-align:center;padding:1rem;">No conversions yet</div>';
+    return;
+  }
+  el.innerHTML = history_log.map(h => `
+    <div class="hist-item">
+      <div class="hist-from">${h.from}</div>
+      <div style="color:var(--muted);font-size:.85rem;">→</div>
+      <div class="hist-to">${h.to}</div>
+      <div class="hist-time">${h.time}</div>
+    </div>`).join('');
+}
+
+/* ── Ticker (real rates) ── */
+function buildTicker() {
+  let html = '';
+  for (let i = 0; i < 2; i++) {
+    TICKER_PAIRS.forEach(([a, b]) => {
+      const rate = (R[b].r / R[a].r).toFixed(4);
+      const chg  = R[b].chg;
+      const pos  = !chg.startsWith('-');
+      html += `<span class="ticker-item">
+        ${FL[a]}${a}/${b}${FL[b]}
+        <span class="t-val">${rate}</span>
+        <span class="t-chg ${pos?'pos':'neg'}">${pos?'▲':'▼'}${Math.abs(parseFloat(chg)).toFixed(2)}%</span>
+      </span>`;
+    });
+  }
+  document.getElementById('ticker').innerHTML = html;
+}
+
+/* ── Rate Banner ── */
+function buildRateBanner() {
+  const banner = document.getElementById('rateBanner');
+  const show = [['USD','INR'],['EUR','USD'],['GBP','USD'],['USD','JPY'],['USD','CHF'],['AUD','USD']];
+  let html = '';
+  show.forEach(([a, b], i) => {
+    const rate = (R[b].r / R[a].r).toFixed(4);
+    const chg  = R[b].chg;
+    const pos  = !chg.startsWith('-');
+    html += `
+      <div class="rb-item">
+        <span class="rb-pair">${FL[a]} ${a}/${b} ${FL[b]}</span>
+        <span class="rb-val">${rate}</span>
+        <span class="rb-chg ${pos?'pos':'neg'}">${pos?'▲':'▼'} ${Math.abs(parseFloat(chg)).toFixed(2)}%</span>
+      </div>
+      ${i < show.length - 1 ? '<div class="rb-sep"></div>' : ''}
+    `;
+  });
+  banner.innerHTML = html;
+}
+
+/* ── Market Overview ── */
+function buildMarket() {
+  const g = document.getElementById('mktGrid');
+  g.innerHTML = '';
+  MKT.forEach(([a, b]) => {
+    const rate = (R[b].r / R[a].r).toFixed(4);
+    const chg  = R[b].chg;
+    const pos  = !chg.startsWith('-');
+    const d    = document.createElement('div');
+    d.className = 'mkt-card';
+    d.innerHTML = `
+      <div class="mkt-pair">${FL[a]} ${a}/${b} ${FL[b]}</div>
+      <div class="mkt-rate">${rate}</div>
+      <div class="mkt-change ${pos?'pos':'neg'}">${pos?'▲':'▼'} ${Math.abs(parseFloat(chg)).toFixed(2)}%</div>
+    `;
+    d.onclick = () => {
+      document.getElementById('from').value = a;
+      document.getElementById('to').value   = b;
+      updateUI();
+    };
+    g.appendChild(d);
+  });
+}
+
+/* ── Chart ── */
+function regenerateChartData(baseRate) {
+  chartData = [];
+  for (let i = 29; i >= 0; i--) {
+    const noise = (Math.random() - .5) * baseRate * 0.012;
+    chartData.push(+(baseRate + noise).toFixed(4));
+  }
+  if (chartInst) { chartInst.data.datasets[0].data = chartData; chartInst.update('none'); }
+}
+
+function jitterChart() {
+  if (!chartData.length) return;
+  const last  = chartData[chartData.length - 1];
+  const noise = (Math.random() - .5) * last * 0.006;
+  chartData.push(+(last + noise).toFixed(4));
+  chartData.shift();
+  if (chartInst) { chartInst.data.datasets[0].data = [...chartData]; chartInst.update('none'); }
+}
+
+function buildChart() {
+  const f    = document.getElementById('from').value;
+  const t    = document.getElementById('to').value;
+  const rate = R[t].r / R[f].r;
+  regenerateChartData(rate);
+  const labels = Array.from({length:30}, (_, i) => `-${29-i}s`);
+  const ctx    = document.getElementById('rateChart').getContext('2d');
+  const grad   = ctx.createLinearGradient(0, 0, 0, 200);
+  grad.addColorStop(0, 'rgba(198,255,0,.25)');
+  grad.addColorStop(1, 'rgba(198,255,0,0)');
+  chartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: chartData, borderColor: '#c6ff00', borderWidth: 2,
+        backgroundColor: grad, fill: true, tension: .4, pointRadius: 0,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index', intersect: false,
+          backgroundColor: 'rgba(0,0,0,.85)',
+          titleColor: '#c6ff00', bodyColor: '#dde4f0',
+          borderColor: 'rgba(198,255,0,.3)', borderWidth: 1,
+        }
+      },
+      scales: {
+        x: { display: false },
+        y: {
+          display: true,
+          grid: { color: 'rgba(255,255,255,.04)' },
+          ticks: { color: '#596580', font: { family: 'IBM Plex Mono', size: 10 }, maxTicksLimit: 4 }
+        }
+      }
+    }
+  });
+}
+
+/* ── IST Live Clock ── */
+function startClock() {
+  function tick() {
+    const now = new Date();
+    const ist = new Date(now.getTime() + (5.5 * 60 * 60 * 1000) - (now.getTimezoneOffset() * 60000));
+    const hh  = String(ist.getHours()).padStart(2,'0');
+    const mm  = String(ist.getMinutes()).padStart(2,'0');
+    const ss  = String(ist.getSeconds()).padStart(2,'0');
+    document.getElementById('clockIST').textContent = `${hh}:${mm}:${ss}`;
+    document.getElementById('clockDateIST').textContent =
+      ist.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short', year:'numeric' }) + ' IST';
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+init();
+</script>
+</body>
+</html>
